@@ -337,7 +337,22 @@
                 </div>
             </div>
         </section>
-        
+        <!-- Page Albums -->
+        <div id="page-albums" class="page-container" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h2 style="background: var(--primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                    <i class="fas fa-compact-disc"></i> Mes albums
+                </h2>
+                <button class="btn btn-primary" id="create-album-btn">
+                    <i class="fas fa-plus"></i> Nouvel album
+                </button>
+            </div>
+
+            <div class="albums-grid" id="albums-grid">
+                <!-- Albums chargés dynamiquement -->
+            </div>
+        </div>
+
         <!-- Projects Management Section -->
         <section id="projects" class="section">
             <div class="table-container">
