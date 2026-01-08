@@ -468,7 +468,8 @@
             .sidebar {
                 width: 80px;
             }
-
+            
+            .sidebar .logo h1,
             .sidebar .logo h1,
             .sidebar .nav-item span {
                 display: none;
