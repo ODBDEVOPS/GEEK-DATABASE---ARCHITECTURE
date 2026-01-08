@@ -23,13 +23,13 @@
                 <i class="fas fa-home"></i>
                 <span>Tableau de bord</span>
             </div>
-            <div class="nav-item " hrref="src/CineGrok001.html">
+            <div class="nav-item " href="src/CineGrok001.html">
                 <i class="fas fa-home"></i>
                 <span>CineGrok</span>
             </div>
-            <div class="nav-item " data-section="dashboard">
+            <div class="nav-item " data-section="dbCineGrok">
                 <i class="fas fa-home"></i>
-                <span>Tableau de bord 3</span>
+                <span>dbCineGrok</span>
             </div>
             <div class="nav-item" data-section="projects">
                 <i class="fas fa-folder"></i>
@@ -191,7 +191,121 @@
                 </div>
             </div>
         </section>
+        <!-- Dashboard Section CineGrok -->
+        <section id="dbCineGrok" class="section active">
+            <div class="dashboard-cards">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Projets</div>
+                        <div class="card-icon projects">
+                            <i class="fas fa-folder"></i>
+                        </div>
+                    </div>
+                    <div class="card-value">12</div>
+                    <div class="card-footer">
+                        <span>5 actifs</span>
+                        <span>+2 ce mois</span>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Tracks générées</div>
+                        <div class="card-icon tracks">
+                            <i class="fas fa-music"></i>
+                        </div>
+                    </div>
+                    <div class="card-value">48</div>
+                    <div class="card-footer">
+                        <span>24 ce mois</span>
+                        <span class="badge badge-success">+120%</span>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Albums créés</div>
+                        <div class="card-icon albums">
+                            <i class="fas fa-compact-disc"></i>
+                        </div>
+                    </div>
+                    <div class="card-value">8</div>
+                    <div class="card-footer">
+                        <span>16 tracks/album</span>
+                        <span class="badge badge-warning">En attente: 2</span>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Clips Grok</div>
+                        <div class="card-icon clips">
+                            <i class="fas fa-video"></i>
+                        </div>
+                    </div>
+                    <div class="card-value">15</div>
+                    <div class="card-footer">
+                        <span>3 en production</span>
+                        <span>+5 cette semaine</span>
+                    </div>
+                </div>
+            </div>
 
+            <div class="table-container">
+                <div class="table-header">
+                    <div class="table-title">Projets récents</div>
+                    <button class="btn btn-primary" id="new-project-btn">
+                        <i class="fas fa-plus"></i> Nouveau projet
+                    </button>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nom du projet</th>
+                            <th>Type</th>
+                            <th>Date de création</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="projects-table-body">
+                        <!-- Projects will be loaded here dynamically -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Activité récente</div>
+                </div>
+                <div style="padding: 1.5rem;">
+                    <div class="d-flex justify-between align-center mb-3">
+                        <div>
+                            <div style="font-weight: 600;">Nouvel album "Synthwave Dreams" généré</div>
+                            <div class="text-muted">Il y a 2 heures</div>
+                        </div>
+                        <span class="badge badge-primary">Suno</span>
+                    </div>
+                    
+                    <div class="d-flex justify-between align-center mb-3">
+                        <div>
+                            <div style="font-weight: 600;">Clip Grok "Urban Odyssey" en production</div>
+                            <div class="text-muted">Il y a 6 heures</div>
+                        </div>
+                        <span class="badge badge-warning">Grok</span>
+                    </div>
+                    
+                    <div class="d-flex justify-between align-center">
+                        <div>
+                            <div style="font-weight: 600;">Style "Cyberpunk Fusion" ajouté</div>
+                            <div class="text-muted">Il y a 1 jour</div>
+                        </div>
+                        <span class="badge badge-success">Style</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
         <!-- Projects Management Section -->
         <section id="projects" class="section">
             <div class="table-container">
