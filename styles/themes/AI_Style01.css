@@ -470,7 +470,7 @@
             }
             
             .sidebar .logo h1,
-            .sidebar .logo-text,
+            .sidebar .logo-text span,
             .sidebar .nav-item span {
                 display: none;
             }
