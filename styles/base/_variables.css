@@ -2,17 +2,27 @@
     /* Couleurs principales */
     --primary-color: #2563eb;
     --secondary-color: #7c3aed;
+    /* Variables de thème dynamique */
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
     --obsidian: #05050A;
     --carbon: #0F0F15;
     --graphite: #1A1A24;
     --platinum: #E8E8F0;
     --silver: #C0C0D0;
+    --dark-bg: #0a0a14;
+            --surface-1: #1a1a2e;
+            --surface-2: #2a2a3e;
+            --surface-3: #3a3a4e;
     --quantum-blue: #00E0FF;
     --quantum-purple: #8A2BE2;
     --neon-cyan: #00FFE0;
     --neon-magenta: #FF00C8;
     --glass-light: rgba(232, 232, 240, 0.05);
     --glass-dark: rgba(5, 5, 10, 0.3);
+    --glass-bg: rgba(255, 255, 255, 0.05);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     --border-thin: rgba(232, 232, 240, 0.1);
     --border-glow: rgba(0, 224, 255, 0.4);
     --transition-super-slow: all 1.2s cubic-bezier(0.16, 1, 0.3, 1);
@@ -20,7 +30,13 @@
     --transition-fast: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     --font-mono: 'SF Mono', 'Roboto Mono', monospace;
-    
+    --text-primary: #ffffff;
+            --text-secondary: #b0b0d0;
+
+    --accent-glow: 0 0 20px rgba(102, 126, 234, 0.5);
+            --success-glow: 0 0 20px rgba(72, 187, 120, 0.5);
+            --warning-glow: 0 0 20px rgba(245, 158, 11, 0.5);
+            --danger-glow: 0 0 20px rgba(239, 68, 68, 0.5);
     /* Espacements */
     --space-sm: 0.5rem;
     --space-md: 1rem;
@@ -30,8 +46,9 @@
     --z-navbar: 1000;
     --z-sidebar: 900;
     --z-mobile-menu: 1100;
+   /* Animations */
+    --float-speed: 3s;
+    --glitch-intensity: 2px;
+           
 }
 /* Variables globales et reset */
-        :root {
-            
-        }
