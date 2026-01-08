@@ -1,0 +1,1535 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prompt Builder Pro - Suno & Grok AI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #7c3aed;
+            --primary-dark: #5b21b6;
+            --secondary: #10b981;
+            --dark: #1f2937;
+            --light: #f9fafb;
+            --gray: #9ca3af;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --card-bg: #ffffff;
+            --sidebar-bg: #1e1b4b;
+            --border: #e5e7eb;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f3f4f6;
+            color: var(--dark);
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: var(--sidebar-bg);
+            color: white;
+            padding: 1.5rem 0;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s;
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            padding: 0 1.5rem 2rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .logo i {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-right: 0.75rem;
+        }
+
+        .logo h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .nav-menu {
+            flex: 1;
+            padding: 1.5rem 0;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 0.9rem 1.5rem;
+            margin: 0.25rem 0.5rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .nav-item:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+
+        .nav-item.active {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .nav-item i {
+            margin-right: 0.75rem;
+            font-size: 1.1rem;
+            width: 24px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 2rem;
+            width: calc(100% - 250px);
+            transition: all 0.3s;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .header h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        /* Section Styling */
+        .section {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Dashboard Cards */
+        .dashboard-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .card-icon.projects {
+            background-color: rgba(124, 58, 237, 0.1);
+            color: var(--primary);
+        }
+
+        .card-icon.tracks {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--secondary);
+        }
+
+        .card-icon.albums {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .card-icon.clips {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        .card-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-footer {
+            color: var(--gray);
+            font-size: 0.9rem;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* Tables */
+        .table-container {
+            background: var(--card-bg);
+            border-radius: 0.75rem;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .table-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border-radius: 0.5rem;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background-color: #e5e7eb;
+            color: var(--dark);
+        }
+
+        .btn-secondary:hover {
+            background-color: #d1d5db;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 1rem 1.5rem;
+            background-color: #f9fafb;
+            font-weight: 600;
+            color: var(--dark);
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover {
+            background-color: #f9fafb;
+        }
+
+        /* Forms */
+        .form-container {
+            background: var(--card-bg);
+            border-radius: 0.75rem;
+            padding: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        textarea.form-control {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        /* Tracks View */
+        .track-card {
+            background: var(--card-bg);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .track-info h4 {
+            margin-bottom: 0.5rem;
+        }
+
+        .track-meta {
+            display: flex;
+            gap: 1.5rem;
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .track-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        /* Suno Style Editor */
+        .style-card {
+            background: var(--card-bg);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.5rem;
+            border-left: 4px solid var(--primary);
+        }
+
+        .style-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .style-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .style-prompt {
+            background-color: #f9fafb;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            font-family: monospace;
+            margin-top: 1rem;
+            border: 1px dashed var(--border);
+        }
+
+        /* Album Maker */
+        .album-preview {
+            background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
+            border-radius: 0.75rem;
+            padding: 2rem;
+            color: white;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .album-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .album-tracks {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .track-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Grok Clip Maker */
+        .prompt-tips {
+            background-color: #eff6ff;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border-left: 4px solid var(--primary);
+        }
+
+        .prompt-tips h4 {
+            margin-bottom: 0.75rem;
+            color: var(--primary-dark);
+        }
+
+        .prompt-tips ul {
+            padding-left: 1.5rem;
+        }
+
+        .prompt-tips li {
+            margin-bottom: 0.5rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 80px;
+            }
+
+            .sidebar .logo h1,
+            .sidebar .nav-item span {
+                display: none;
+            }
+
+            .sidebar .nav-item {
+                justify-content: center;
+                padding: 0.9rem;
+            }
+
+            .sidebar .nav-item i {
+                margin-right: 0;
+                font-size: 1.3rem;
+            }
+
+            .main-content {
+                margin-left: 80px;
+                width: calc(100% - 80px);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+
+            .track-card,
+            .style-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .track-actions {
+                margin-top: 1rem;
+            }
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge-success {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--secondary);
+        }
+
+        .badge-warning {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .badge-primary {
+            background-color: rgba(124, 58, 237, 0.1);
+            color: var(--primary);
+        }
+
+        /* Utility Classes */
+        .mb-3 { margin-bottom: 1.5rem; }
+        .mt-3 { margin-top: 1.5rem; }
+        .text-muted { color: var(--gray); }
+        .text-center { text-align: center; }
+        .d-flex { display: flex; }
+        .justify-between { justify-content: space-between; }
+        .align-center { align-items: center; }
+    </style>
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar">
+        <div class="logo">
+            <i class="fas fa-music"></i>
+            <h1>PromptBuilder</h1>
+        </div>
+        
+        <div class="nav-menu">
+            <div class="nav-item active" data-section="dashboard">
+                <i class="fas fa-home"></i>
+                <span>Tableau de bord</span>
+            </div>
+            <div class="nav-item" data-section="projects">
+                <i class="fas fa-folder"></i>
+                <span>Gestion des projets</span>
+            </div>
+            <div class="nav-item" data-section="tracks">
+                <i class="fas fa-wave-square"></i>
+                <span>Tracks view</span>
+            </div>
+            <div class="nav-item" data-section="style-editor">
+                <i class="fas fa-palette"></i>
+                <span>Suno style editor</span>
+            </div>
+            <div class="nav-item" data-section="album-maker">
+                <i class="fas fa-compact-disc"></i>
+                <span>Suno album maker</span>
+            </div>
+            <div class="nav-item" data-section="grok-maker">
+                <i class="fas fa-video"></i>
+                <span>Grok clip maker</span>
+            </div>
+        </div>
+        
+        <div class="mt-3" style="padding: 0 1.5rem;">
+            <div class="card" style="background-color: rgba(255,255,255,0.1); border: none; color: white;">
+                <div class="card-footer">
+                    <span>Projets actifs</span>
+                    <span class="badge badge-primary">5</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="header">
+            <h2 id="page-title">Tableau de bord</h2>
+            <div class="user-info">
+                <div class="user-avatar">JP</div>
+                <div>
+                    <div style="font-weight: 600;">Jean Prompter</div>
+                    <div class="text-muted" style="font-size: 0.9rem;">Expert en prompts IA</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="section active">
+            <div class="dashboard-cards">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Projets</div>
+                        <div class="card-icon projects">
+                            <i class="fas fa-folder"></i>
+                        </div>
+                    </div>
+                    <div class="card-value">12</div>
+                    <div class="card-footer">
+                        <span>5 actifs</span>
+                        <span>+2 ce mois</span>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Tracks générées</div>
+                        <div class="card-icon tracks">
+                            <i class="fas fa-music"></i>
+                        </div>
+                    </div>
+                    <div class="card-value">48</div>
+                    <div class="card-footer">
+                        <span>24 ce mois</span>
+                        <span class="badge badge-success">+120%</span>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Albums créés</div>
+                        <div class="card-icon albums">
+                            <i class="fas fa-compact-disc"></i>
+                        </div>
+                    </div>
+                    <div class="card-value">8</div>
+                    <div class="card-footer">
+                        <span>16 tracks/album</span>
+                        <span class="badge badge-warning">En attente: 2</span>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Clips Grok</div>
+                        <div class="card-icon clips">
+                            <i class="fas fa-video"></i>
+                        </div>
+                    </div>
+                    <div class="card-value">15</div>
+                    <div class="card-footer">
+                        <span>3 en production</span>
+                        <span>+5 cette semaine</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <div class="table-header">
+                    <div class="table-title">Projets récents</div>
+                    <button class="btn btn-primary" id="new-project-btn">
+                        <i class="fas fa-plus"></i> Nouveau projet
+                    </button>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nom du projet</th>
+                            <th>Type</th>
+                            <th>Date de création</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="projects-table-body">
+                        <!-- Projects will be loaded here dynamically -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Activité récente</div>
+                </div>
+                <div style="padding: 1.5rem;">
+                    <div class="d-flex justify-between align-center mb-3">
+                        <div>
+                            <div style="font-weight: 600;">Nouvel album "Synthwave Dreams" généré</div>
+                            <div class="text-muted">Il y a 2 heures</div>
+                        </div>
+                        <span class="badge badge-primary">Suno</span>
+                    </div>
+                    
+                    <div class="d-flex justify-between align-center mb-3">
+                        <div>
+                            <div style="font-weight: 600;">Clip Grok "Urban Odyssey" en production</div>
+                            <div class="text-muted">Il y a 6 heures</div>
+                        </div>
+                        <span class="badge badge-warning">Grok</span>
+                    </div>
+                    
+                    <div class="d-flex justify-between align-center">
+                        <div>
+                            <div style="font-weight: 600;">Style "Cyberpunk Fusion" ajouté</div>
+                            <div class="text-muted">Il y a 1 jour</div>
+                        </div>
+                        <span class="badge badge-success">Style</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Projects Management Section -->
+        <section id="projects" class="section">
+            <div class="table-container">
+                <div class="table-header">
+                    <div class="table-title">Gestion des projets</div>
+                    <button class="btn btn-primary" id="add-project-btn">
+                        <i class="fas fa-plus"></i> Ajouter un projet
+                    </button>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nom projet</th>
+                            <th>Description</th>
+                            <th>Albums</th>
+                            <th>Clips Grok</th>
+                            <th>Date de création</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="projects-management-body">
+                        <!-- Projects will be loaded here dynamically -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="form-container" id="project-form" style="display: none;">
+                <h3 class="mb-3">Nouveau projet</h3>
+                <div class="form-group">
+                    <label class="form-label">Nom du projet</label>
+                    <input type="text" class="form-control" id="project-name" placeholder="Ex: Album Synthwave 2024">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-control" id="project-description" placeholder="Description du projet..."></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Style principal</label>
+                        <select class="form-control" id="project-style">
+                            <option value="synthwave">Synthwave</option>
+                            <option value="lofi">Lo-Fi Hip Hop</option>
+                            <option value="rock">Rock Électronique</option>
+                            <option value="ambient">Ambient</option>
+                            <option value="jazz">Jazz Fusion</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Date d'échéance</label>
+                        <input type="date" class="form-control" id="project-deadline">
+                    </div>
+                </div>
+                <div class="d-flex justify-between">
+                    <button class="btn btn-secondary" id="cancel-project-btn">Annuler</button>
+                    <button class="btn btn-primary" id="save-project-btn">Créer le projet</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tracks View Section -->
+        <section id="tracks" class="section">
+            <div class="table-container">
+                <div class="table-header">
+                    <div class="table-title">Tracks Suno</div>
+                    <button class="btn btn-primary">
+                        <i class="fas fa-sync"></i> Actualiser
+                    </button>
+                </div>
+                <div id="tracks-container">
+                    <!-- Tracks will be loaded here dynamically -->
+                </div>
+            </div>
+
+            <div class="form-container">
+                <h3 class="mb-3">Analyse de track</h3>
+                <div class="form-group">
+                    <label class="form-label">Lien Suno</label>
+                    <input type="text" class="form-control" id="track-link" placeholder="Collez le lien de la track Suno ici">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Notes d'analyse</label>
+                    <textarea class="form-control" id="track-analysis" placeholder="Détails sur la structure, mélodie, harmonie, etc." rows="4"></textarea>
+                </div>
+                <button class="btn btn-primary" id="analyze-track-btn">
+                    <i class="fas fa-chart-bar"></i> Analyser la track
+                </button>
+            </div>
+        </section>
+
+        <!-- Suno Style Editor Section -->
+        <section id="style-editor" class="section">
+            <div class="table-container">
+                <div class="table-header">
+                    <div class="table-title">Styles Suno</div>
+                    <button class="btn btn-primary" id="add-style-btn">
+                        <i class="fas fa-plus"></i> Ajouter un style
+                    </button>
+                </div>
+                <div id="styles-container">
+                    <!-- Styles will be loaded here dynamically -->
+                </div>
+            </div>
+
+            <div class="form-container" id="style-form" style="display: none;">
+                <h3 class="mb-3">Nouveau style Suno</h3>
+                <div class="form-group">
+                    <label class="form-label">Nom du style</label>
+                    <input type="text" class="form-control" id="style-name" placeholder="Ex: Cyberpunk Fusion">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Prompt du style</label>
+                    <textarea class="form-control" id="style-prompt" placeholder="Décrivez le style en détail pour Suno..." rows="6"></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Genre musical</label>
+                        <select class="form-control" id="style-genre">
+                            <option value="electronic">Électronique</option>
+                            <option value="rock">Rock</option>
+                            <option value="hiphop">Hip Hop</option>
+                            <option value="jazz">Jazz</option>
+                            <option value="ambient">Ambient</option>
+                            <option value="classical">Classique</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Époque</label>
+                        <select class="form-control" id="style-era">
+                            <option value="80s">Années 80</option>
+                            <option value="90s">Années 90</option>
+                            <option value="2000s">Années 2000</option>
+                            <option value="modern">Moderne</option>
+                            <option value="futuristic">Futuriste</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="d-flex justify-between">
+                    <button class="btn btn-secondary" id="cancel-style-btn">Annuler</button>
+                    <button class="btn btn-primary" id="save-style-btn">Enregistrer le style</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Suno Album Maker Section -->
+        <section id="album-maker" class="section">
+            <div class="album-preview">
+                <div class="album-title" id="album-title-preview">Nouvel Album</div>
+                <div class="text-muted" style="color: rgba(255,255,255,0.8);" id="album-desc-preview">Description de l'album</div>
+                <div class="album-tracks" id="album-tracks-preview">
+                    <!-- Tracks preview will be loaded here -->
+                </div>
+            </div>
+
+            <div class="form-container">
+                <h3 class="mb-3">Générateur d'album Suno</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Nom de l'album</label>
+                        <input type="text" class="form-control" id="album-name" placeholder="Ex: Synthwave Dreams" value="Synthwave Dreams">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Nombre de tracks</label>
+                        <select class="form-control" id="album-track-count">
+                            <option value="4">4 tracks (2 prompts)</option>
+                            <option value="6">6 tracks (3 prompts)</option>
+                            <option value="8" selected>8 tracks (4 prompts)</option>
+                            <option value="10">10 tracks (5 prompts)</option>
+                            <option value="12">12 tracks (6 prompts)</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Thème de l'album</label>
+                    <textarea class="form-control" id="album-theme" placeholder="Décrivez le thème, l'ambiance, les influences musicales..." rows="4">Un album synthwave inspiré des années 80, avec des influences de films comme Drive et Stranger Things. Ambiance nostalgique mais moderne, avec des mélodies entraînantes et des basses puissantes.</textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Style principal</label>
+                    <select class="form-control" id="album-style">
+                        <option value="synthwave">Synthwave</option>
+                        <option value="retrowave">Retrowave</option>
+                        <option value="outrun">Outrun</option>
+                        <option value="cyberpunk">Cyberpunk</option>
+                        <option value="dreamwave">Dreamwave</option>
+                    </select>
+                </div>
+                
+                <div class="d-flex justify-between">
+                    <button class="btn btn-secondary" id="reset-album-btn">
+                        <i class="fas fa-redo"></i> Réinitialiser
+                    </button>
+                    <button class="btn btn-primary" id="generate-album-btn">
+                        <i class="fas fa-magic"></i> Générer l'album
+                    </button>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header">
+                    <div class="card-title">Prompts générés pour Suno</div>
+                </div>
+                <div style="padding: 1.5rem;" id="generated-prompts">
+                    <!-- Prompts will appear here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Grok Clip Maker Section -->
+        <section id="grok-maker" class="section">
+            <div class="prompt-tips">
+                <h4><i class="fas fa-lightbulb"></i> Principes d'ingénierie de prompt pour Grok</h4>
+                <ul>
+                    <li><strong>Spécificité visuelle :</strong> Décrire précisément les plans, angles de caméra, éclairage</li>
+                    <li><strong>Cohérence narrative :</strong> Maintenir une histoire ou un thème à travers le clip</li>
+                    <li><strong>Rythme et tempo :</strong> Synchroniser les transitions avec la musique</li>
+                    <li><strong>Style artistique :</strong> Définir un style visuel cohérent (ex: cyberpunk, rétro, etc.)</li>
+                    <li><strong>Éléments dynamiques :</strong> Inclure des mouvements de caméra et des transitions créatives</li>
+                </ul>
+            </div>
+
+            <div class="form-container">
+                <h3 class="mb-3">Générateur de clip Grok</h3>
+                <div class="form-group">
+                    <label class="form-label">Nom du clip</label>
+                    <input type="text" class="form-control" id="clip-name" placeholder="Ex: Urban Odyssey">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Track Suno associée</label>
+                    <select class="form-control" id="clip-track">
+                        <option value="">Sélectionner une track</option>
+                        <option value="midnight_drive">Midnight Drive - Synthwave Dreams</option>
+                        <option value="neon_dreams">Neon Dreams - Cyberpunk Fusion</option>
+                        <option value="retro_future">Retro Future - Outrun Vibes</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Prompt visuel détaillé</label>
+                    <textarea class="form-control" id="clip-prompt" placeholder="Décrivez en détail la vidéo à générer..." rows="6">Un clip vidéo cyberpunk se déroulant dans une ville futuriste de nuit. Scènes de voitures volantes passant entre des gratte-ciels néon, plans rapprochés sur des personnages aux implants cybernétiques, transitions synchronisées avec le beat de la musique. Éclairage néon dominant (bleu, rose, violet), pluie artificielle reflétant les lumières de la ville. Mouvements de caméra dynamiques avec des plans en drone entre les buildings.</textarea>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Durée (secondes)</label>
+                        <input type="number" class="form-control" id="clip-duration" value="60" min="10" max="180">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Style visuel</label>
+                        <select class="form-control" id="clip-style">
+                            <option value="cyberpunk">Cyberpunk</option>
+                            <option value="retro">Rétro 80s</option>
+                            <option value="realistic">Réaliste</option>
+                            <option value="anime">Anime</option>
+                            <option value="cinematic">Cinématographique</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="d-flex justify-between">
+                    <button class="btn btn-secondary" id="test-prompt-btn">
+                        <i class="fas fa-vial"></i> Tester le prompt
+                    </button>
+                    <button class="btn btn-primary" id="generate-clip-btn">
+                        <i class="fas fa-film"></i> Générer le clip Grok
+                    </button>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header">
+                    <div class="card-title">Prompt optimisé pour Grok</div>
+                    <button class="btn btn-secondary" id="copy-prompt-btn">
+                        <i class="fas fa-copy"></i> Copier
+                    </button>
+                </div>
+                <div style="padding: 1.5rem;">
+                    <pre id="optimized-prompt" style="background-color: #f9fafb; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; font-family: monospace; font-size: 0.9rem; white-space: pre-wrap;">
+                    </pre>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Application data
+        const appData = {
+            projects: [
+                {
+                    id: 1,
+                    name: "Synthwave Dreams",
+                    description: "Album synthwave inspiré des années 80",
+                    albums: [1, 2],
+                    grokClips: [1],
+                    type: "Album",
+                    created: "2024-03-15",
+                    status: "Actif"
+                },
+                {
+                    id: 2,
+                    name: "Cyberpunk Fusion",
+                    description: "Expérimentation musicale cyberpunk",
+                    albums: [3],
+                    grokClips: [2, 3],
+                    type: "Expérimental",
+                    created: "2024-03-10",
+                    status: "Actif"
+                },
+                {
+                    id: 3,
+                    name: "Urban Odyssey",
+                    description: "Projet vidéo musical urbain",
+                    albums: [],
+                    grokClips: [4],
+                    type: "Vidéo",
+                    created: "2024-03-05",
+                    status: "En pause"
+                },
+                {
+                    id: 4,
+                    name: "Lofi Study Sessions",
+                    description: "Collection lofi pour concentration",
+                    albums: [4],
+                    grokClips: [],
+                    type: "Album",
+                    created: "2024-02-28",
+                    status: "Terminé"
+                }
+            ],
+            tracks: [
+                {
+                    id: 1,
+                    name: "Midnight Drive",
+                    project: "Synthwave Dreams",
+                    style: "Synthwave",
+                    sunoLink: "https://suno.com/track/abc123",
+                    analysis: "Mélodie entraînante avec basse pulsante. Structure ABA avec pont synthétiseur à 1:45.",
+                    created: "2024-03-16"
+                },
+                {
+                    id: 2,
+                    name: "Neon Dreams",
+                    project: "Cyberpunk Fusion",
+                    style: "Cyberpunk",
+                    sunoLink: "https://suno.com/track/def456",
+                    analysis: "Rythme complexe avec influences industrial. Texte dystopique.",
+                    created: "2024-03-12"
+                },
+                {
+                    id: 3,
+                    name: "Retro Future",
+                    project: "Synthwave Dreams",
+                    style: "Retrowave",
+                    sunoLink: "https://suno.com/track/ghi789",
+                    analysis: "Ambiance nostalgique avec pads atmosphériques. Belle progression harmonique.",
+                    created: "2024-03-14"
+                }
+            ],
+            styles: [
+                {
+                    id: 1,
+                    name: "Synthwave",
+                    prompt: "Musique électronique inspirée des années 80 avec des synthétiseurs analogiques, des gated reverb sur les caisses claires, des lignes de basse pulsantes et des mélodies nostalgiques. Tempo modéré (100-120 BPM). Inclure des éléments de film de science-fiction des années 80.",
+                    genre: "electronic",
+                    era: "80s"
+                },
+                {
+                    id: 2,
+                    name: "Cyberpunk Fusion",
+                    prompt: "Fusion de musique électronique industrielle, de synthwave et d'éléments de hip-hop. Rythmes complexes, distorsions contrôlées, textures futuristes. Thèmes dystopiques et urbains. Utiliser des sons glitch et des basses lourdes.",
+                    genre: "electronic",
+                    era: "futuristic"
+                },
+                {
+                    id: 3,
+                    name: "Lofi Hip Hop",
+                    prompt: "Beats relaxants avec des samples de jazz, du vinyle crackle, des basses douces et des mélodies simples. Tempo lent (70-90 BPM). Atmosphere chaleureuse et intime, parfaite pour la concentration ou la détente.",
+                    genre: "hiphop",
+                    era: "modern"
+                }
+            ],
+            albums: [
+                {
+                    id: 1,
+                    name: "Synthwave Dreams",
+                    theme: "Nostalgie des années 80 avec une touche moderne",
+                    tracks: [
+                        "Midnight Drive",
+                        "Neon Highway",
+                        "Digital Love",
+                        "Retro Future"
+                    ]
+                }
+            ],
+            grokClips: [
+                {
+                    id: 1,
+                    name: "Urban Odyssey",
+                    track: "Midnight Drive",
+                    prompt: "Clip vidéo cyberpunk dans une ville futuriste de nuit avec des néons et de la pluie",
+                    duration: 60,
+                    status: "En production"
+                }
+            ]
+        };
+
+        // DOM Elements
+        const navItems = document.querySelectorAll('.nav-item');
+        const sections = document.querySelectorAll('.section');
+        const pageTitle = document.getElementById('page-title');
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load initial data
+            loadProjectsTable();
+            loadProjectsManagement();
+            loadTracks();
+            loadStyles();
+            updateAlbumPreview();
+            updateOptimizedPrompt();
+            
+            // Set up event listeners
+            setupEventListeners();
+        });
+
+        // Navigation between sections
+        navItems.forEach(item => {
+            item.addEventListener('click', function() {
+                const sectionId = this.getAttribute('data-section');
+                
+                // Update active nav item
+                navItems.forEach(nav => nav.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Show corresponding section
+                sections.forEach(section => {
+                    section.classList.remove('active');
+                    if (section.id === sectionId) {
+                        section.classList.add('active');
+                        
+                        // Update page title
+                        pageTitle.textContent = this.querySelector('span').textContent;
+                    }
+                });
+            });
+        });
+
+        // Load projects into dashboard table
+        function loadProjectsTable() {
+            const tableBody = document.getElementById('projects-table-body');
+            tableBody.innerHTML = '';
+            
+            appData.projects.forEach(project => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>
+                        <div style="font-weight: 600;">${project.name}</div>
+                        <div class="text-muted" style="font-size: 0.9rem;">${project.description}</div>
+                    </td>
+                    <td>${project.type}</td>
+                    <td>${project.created}</td>
+                    <td>
+                        <span class="badge ${project.status === 'Actif' ? 'badge-success' : project.status === 'En pause' ? 'badge-warning' : 'badge-primary'}">
+                            ${project.status}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.9rem;">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.9rem;">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Load projects into management section
+        function loadProjectsManagement() {
+            const tableBody = document.getElementById('projects-management-body');
+            tableBody.innerHTML = '';
+            
+            appData.projects.forEach(project => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>
+                        <div style="font-weight: 600;">${project.name}</div>
+                    </td>
+                    <td>${project.description}</td>
+                    <td>${project.albums.length}</td>
+                    <td>${project.grokClips.length}</td>
+                    <td>${project.created}</td>
+                    <td>
+                        <button class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.9rem;">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.9rem;">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Load tracks into tracks view
+        function loadTracks() {
+            const container = document.getElementById('tracks-container');
+            container.innerHTML = '';
+            
+            appData.tracks.forEach(track => {
+                const trackCard = document.createElement('div');
+                trackCard.className = 'track-card';
+                trackCard.innerHTML = `
+                    <div class="track-info">
+                        <h4>${track.name}</h4>
+                        <div class="track-meta">
+                            <span><i class="fas fa-project-diagram"></i> ${track.project}</span>
+                            <span><i class="fas fa-palette"></i> ${track.style}</span>
+                            <span><i class="fas fa-calendar"></i> ${track.created}</span>
+                        </div>
+                        <div class="text-muted" style="margin-top: 0.5rem; font-size: 0.9rem;">
+                            <strong>Analyse :</strong> ${track.analysis}
+                        </div>
+                    </div>
+                    <div class="track-actions">
+                        <a href="${track.sunoLink}" target="_blank" class="btn btn-primary">
+                            <i class="fas fa-external-link-alt"></i> Suno
+                        </a>
+                        <button class="btn btn-secondary" data-track-id="${track.id}">
+                            <i class="fas fa-chart-bar"></i> Analyser
+                        </button>
+                    </div>
+                `;
+                container.appendChild(trackCard);
+            });
+        }
+
+        // Load styles into style editor
+        function loadStyles() {
+            const container = document.getElementById('styles-container');
+            container.innerHTML = '';
+            
+            appData.styles.forEach(style => {
+                const styleCard = document.createElement('div');
+                styleCard.className = 'style-card';
+                styleCard.innerHTML = `
+                    <div class="style-header">
+                        <div class="style-name">${style.name}</div>
+                        <div>
+                            <span class="badge badge-primary">${style.genre}</span>
+                            <span class="badge badge-warning">${style.era}</span>
+                        </div>
+                    </div>
+                    <div class="style-prompt">${style.prompt}</div>
+                    <div class="d-flex justify-between mt-3">
+                        <button class="btn btn-secondary" data-style-id="${style.id}">
+                            <i class="fas fa-edit"></i> Modifier
+                        </button>
+                        <button class="btn btn-secondary" data-style-id="${style.id}">
+                            <i class="fas fa-trash"></i> Supprimer
+                        </button>
+                    </div>
+                `;
+                container.appendChild(styleCard);
+            });
+        }
+
+        // Update album preview
+        function updateAlbumPreview() {
+            const albumName = document.getElementById('album-name').value;
+            const albumTheme = document.getElementById('album-theme').value;
+            const trackCount = parseInt(document.getElementById('album-track-count').value);
+            
+            document.getElementById('album-title-preview').textContent = albumName;
+            document.getElementById('album-desc-preview').textContent = albumTheme;
+            
+            // Generate track previews
+            const tracksContainer = document.getElementById('album-tracks-preview');
+            tracksContainer.innerHTML = '';
+            
+            const trackNames = [
+                "Midnight Drive", "Neon Highway", "Digital Love", "Retro Future",
+                "Electric Dreams", "Night City", "Synth Odyssey", "Cyber Romance",
+                "Neon Dreams", "Future Memories", "Analog Hearts", "Digital Waves"
+            ];
+            
+            for (let i = 0; i < trackCount; i++) {
+                const trackItem = document.createElement('div');
+                trackItem.className = 'track-item';
+                trackItem.innerHTML = `
+                    <div style="font-weight: 600;">${trackNames[i % trackNames.length]}</div>
+                    <div style="font-size: 0.9rem; opacity: 0.8;">Track ${i+1}</div>
+                `;
+                tracksContainer.appendChild(trackItem);
+            }
+        }
+
+        // Update optimized prompt for Grok
+        function updateOptimizedPrompt() {
+            const clipName = document.getElementById('clip-name').value || "Urban Odyssey";
+            const clipPrompt = document.getElementById('clip-prompt').value;
+            const clipStyle = document.getElementById('clip-style').value;
+            const clipDuration = document.getElementById('clip-duration').value;
+            
+            const optimizedPrompt = `Grok AI Video Generation Prompt:
+                
+Titre: ${clipName}
+Durée: ${clipDuration} secondes
+Style visuel: ${clipStyle}
+Format: Clip musical synchronisé avec la track audio
+
+Instructions détaillées:
+${clipPrompt}
+
+Paramètres techniques:
+- Ratio d'aspect: 16:9
+- Résolution: 1920x1080
+- Cadence: 30 fps
+- Style cohérent maintenu tout au long de la vidéo
+- Transitions fluides entre les scènes
+- Synchronisation audio-visuelle précise
+
+Éléments de composition:
+1. Plans d'établissement pour contexte
+2. Plans rapprochés pour connexion émotionnelle
+3. Mouvements de caméra dynamiques
+4. Éclairage stylisé cohérent avec le thème
+5. Transitions créatives synchronisées avec le beat
+
+Contraintes:
+- Éviter les changements brusques de style
+- Maintenir la cohérence des personnages et décors
+- Respecter la durée exacte de ${clipDuration} secondes`;
+            
+            document.getElementById('optimized-prompt').textContent = optimizedPrompt;
+        }
+
+        // Set up event listeners
+        function setupEventListeners() {
+            // Project management
+            document.getElementById('new-project-btn').addEventListener('click', function() {
+                document.getElementById('project-form').style.display = 'block';
+                document.getElementById('projects').scrollIntoView({ behavior: 'smooth' });
+            });
+            
+            document.getElementById('add-project-btn').addEventListener('click', function() {
+                document.getElementById('project-form').style.display = 'block';
+            });
+            
+            document.getElementById('cancel-project-btn').addEventListener('click', function() {
+                document.getElementById('project-form').style.display = 'none';
+            });
+            
+            document.getElementById('save-project-btn').addEventListener('click', function() {
+                const projectName = document.getElementById('project-name').value;
+                const projectDescription = document.getElementById('project-description').value;
+                
+                if (projectName && projectDescription) {
+                    // In a real app, you would save to appData and update the UI
+                    alert(`Projet "${projectName}" créé avec succès !`);
+                    document.getElementById('project-form').style.display = 'none';
+                    
+                    // Reset form
+                    document.getElementById('project-name').value = '';
+                    document.getElementById('project-description').value = '';
+                } else {
+                    alert('Veuillez remplir tous les champs obligatoires.');
+                }
+            });
+            
+            // Style editor
+            document.getElementById('add-style-btn').addEventListener('click', function() {
+                document.getElementById('style-form').style.display = 'block';
+            });
+            
+            document.getElementById('cancel-style-btn').addEventListener('click', function() {
+                document.getElementById('style-form').style.display = 'none';
+            });
+            
+            document.getElementById('save-style-btn').addEventListener('click', function() {
+                const styleName = document.getElementById('style-name').value;
+                const stylePrompt = document.getElementById('style-prompt').value;
+                
+                if (styleName && stylePrompt) {
+                    // In a real app, you would save to appData and update the UI
+                    alert(`Style "${styleName}" enregistré avec succès !`);
+                    document.getElementById('style-form').style.display = 'none';
+                    
+                    // Reset form
+                    document.getElementById('style-name').value = '';
+                    document.getElementById('style-prompt').value = '';
+                } else {
+                    alert('Veuillez remplir tous les champs obligatoires.');
+                }
+            });
+            
+            // Album maker
+            document.getElementById('album-name').addEventListener('input', updateAlbumPreview);
+            document.getElementById('album-theme').addEventListener('input', updateAlbumPreview);
+            document.getElementById('album-track-count').addEventListener('change', updateAlbumPreview);
+            
+            document.getElementById('reset-album-btn').addEventListener('click', function() {
+                document.getElementById('album-name').value = '';
+                document.getElementById('album-theme').value = '';
+                document.getElementById('album-track-count').value = '8';
+                updateAlbumPreview();
+            });
+            
+            document.getElementById('generate-album-btn').addEventListener('click', function() {
+                const albumName = document.getElementById('album-name').value;
+                const trackCount = parseInt(document.getElementById('album-track-count').value);
+                const promptsCount = trackCount / 2; // Suno generates 2 tracks per prompt
+                
+                if (!albumName) {
+                    alert('Veuillez donner un nom à votre album.');
+                    return;
+                }
+                
+                // Generate prompts for the album
+                const promptsContainer = document.getElementById('generated-prompts');
+                promptsContainer.innerHTML = '';
+                
+                for (let i = 0; i < promptsCount; i++) {
+                    const promptCard = document.createElement('div');
+                    promptCard.className = 'style-card';
+                    promptCard.style.marginBottom = '1rem';
+                    promptCard.innerHTML = `
+                        <div class="style-header">
+                            <div class="style-name">Prompt ${i+1} pour Suno</div>
+                            <span class="badge badge-primary">Génère 2 tracks</span>
+                        </div>
+                        <div class="style-prompt">
+                            Crée une paire de tracks ${document.getElementById('album-style').value} pour l'album "${albumName}".
+                            Thème: ${document.getElementById('album-theme').value}
+                            Track ${i*2+1}: Instrumentale avec mélodie principale au synthétiseur
+                            Track ${i*2+2}: Version avec rythme plus complexe et variations thématiques
+                            Les deux tracks doivent partager des éléments mélodiques communs mais avoir des atmosphères distinctes.
+                        </div>
+                        <div class="d-flex justify-between mt-3">
+                            <button class="btn btn-secondary">
+                                <i class="fas fa-copy"></i> Copier
+                            </button>
+                            <button class="btn btn-primary">
+                                <i class="fas fa-bolt"></i> Générer avec Suno
+                            </button>
+                        </div>
+                    `;
+                    promptsContainer.appendChild(promptCard);
+                }
+                
+                alert(`Album "${albumName}" généré avec ${promptsCount} prompts pour ${trackCount} tracks !`);
+            });
+            
+            // Grok clip maker
+            document.getElementById('clip-name').addEventListener('input', updateOptimizedPrompt);
+            document.getElementById('clip-prompt').addEventListener('input', updateOptimizedPrompt);
+            document.getElementById('clip-style').addEventListener('change', updateOptimizedPrompt);
+            document.getElementById('clip-duration').addEventListener('input', updateOptimizedPrompt);
+            
+            document.getElementById('test-prompt-btn').addEventListener('click', function() {
+                alert('Fonctionnalité de test de prompt en cours de développement. Le prompt a été optimisé et est prêt pour Grok.');
+            });
+            
+            document.getElementById('generate-clip-btn').addEventListener('click', function() {
+                const clipName = document.getElementById('clip-name').value;
+                
+                if (!clipName) {
+                    alert('Veuillez donner un nom à votre clip.');
+                    return;
+                }
+                
+                alert(`Clip "${clipName}" envoyé à Grok pour génération !`);
+            });
+            
+            document.getElementById('copy-prompt-btn').addEventListener('click', function() {
+                const promptText = document.getElementById('optimized-prompt').textContent;
+                navigator.clipboard.writeText(promptText).then(() => {
+                    const originalText = this.innerHTML;
+                    this.innerHTML = '<i class="fas fa-check"></i> Copié !';
+                    setTimeout(() => {
+                        this.innerHTML = originalText;
+                    }, 2000);
+                });
+            });
+            
+            // Track analysis
+            document.getElementById('analyze-track-btn').addEventListener('click', function() {
+                const trackLink = document.getElementById('track-link').value;
+                const trackAnalysis = document.getElementById('track-analysis').value;
+                
+                if (!trackLink) {
+                    alert('Veuillez entrer un lien Suno à analyser.');
+                    return;
+                }
+                
+                alert(`Analyse de track enregistrée ! L'analyse a été sauvegardée avec le lien: ${trackLink}`);
+            });
+        }
+    </script>
+</body>
+</html>
