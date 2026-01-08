@@ -1,5 +1,5 @@
 /* Header néon */
-        .header {
+        .c.header {
             position: fixed;
             top: 0;
             width: 100%;
@@ -10,7 +10,7 @@
             padding: 1rem 2rem;
         }
 
-        .header-content {
+        .c.header-content {
             max-width: 1400px;
             margin: 0 auto;
             display: flex;
@@ -18,13 +18,13 @@
             align-items: center;
         }
 
-        .logo {
+        .c.logo {
             display: flex;
             align-items: center;
             gap: 1rem;
         }
 
-        .logo-icon {
+        .c.logo-icon {
             font-size: 2rem;
             background: var(--primary-gradient);
             -webkit-background-clip: text;
@@ -36,7 +36,7 @@
             100% { transform: rotate(360deg); }
         }
 
-        .logo-text {
+        .c.logo-text {
             font-size: 1.5rem;
             font-weight: 800;
             letter-spacing: -0.5px;
@@ -46,7 +46,7 @@
             position: relative;
         }
 
-        .logo-text::after {
+        .c.logo-text::after {
             content: '🌀';
             position: absolute;
             right: -30px;
@@ -60,7 +60,7 @@
         }
 
         /* Navigation expérimentale */
-        .nav {
+        .c.nav {
             display: flex;
             gap: 0.5rem;
             background: var(--glass-bg);
@@ -70,7 +70,7 @@
             border: 1px solid var(--glass-border);
         }
 
-        .nav-btn {
+        .c.nav-btn {
             padding: 0.75rem 1.5rem;
             border: none;
             background: transparent;
@@ -84,18 +84,18 @@
             letter-spacing: 0.5px;
         }
 
-        .nav-btn:hover {
+        .c.nav-btn:hover {
             color: var(--text-primary);
             transform: translateY(-2px);
         }
 
-        .nav-btn.active {
+        .c.nav-btn.active {
             background: var(--primary-gradient);
             color: white;
             box-shadow: var(--accent-glow);
         }
 
-        .nav-btn::before {
+        .c.nav-btn::before {
             content: '';
             position: absolute;
             top: 0;
@@ -106,6 +106,6 @@
             transition: left 0.5s ease;
         }
 
-        .nav-btn:hover::before {
+        .c.nav-btn:hover::before {
             left: 100%;
         }
