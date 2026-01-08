@@ -3,8 +3,8 @@
     --primary-color: #2563eb;
     --secondary-color: #7c3aed;
 /* Variables de thème dynamique */
-    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    --primary-gradient: linear-gradient(135deg, #2563eb 0%, #764ba2 100%);
+    --secondary-gradient: linear-gradient(135deg, #7c3aed 0%, #f5576c 100%);
     --obsidian: #05050A;
     --carbon: #0F0F15;
     --graphite: #1A1A24;
