@@ -1139,7 +1139,596 @@ Contraintes:
             });
         }
     </script>
- 
+<script>
+        // Données de styles
+        const MUSIC_STYLES = [
+            "acoustic chicago blues cape verdean", "afro-jazz", "afrobeat", "alternative rock",
+            "ambient", "ambient house 16-bit", "arabic reggae", "atmospheric black metal",
+            "balkan brass", "bluegrass", "blues rock", "bossa nova", "breakbeat", "cajun",
+            "celtic folk", "chamber pop", "chicago house", "chillwave", "classical", "country",
+            "dance-pop", "dancehall", "dark ambient", "dark goa trance", "deep house",
+            "detroit techno", "disco", "downtempo", "dream pop", "drill", "drone",
+            "drum and bass", "dub", "dubstep", "electro", "electronic", "emo", "eurodance",
+            "experimental", "folk", "funk", "future bass", "g-funk", "garage rock", "glitch",
+            "gospel", "grime", "grunge", "happy hardcore", "hard rock", "hard trance", "hardcore",
+            "heavy metal", "hip hop", "house", "hyperpop", "idm", "indie folk", "indie pop",
+            "indie rock", "industrial", "instrumental hip hop", "j-pop", "j-rock", "jazz",
+            "jazz fusion", "k-pop", "koto gnawa", "korean pacific reggae", "latin pop", "lo-fi",
+            "melodic techno", "metalcore", "minimal techno", "motown", "neoclassical",
+            "new jack swing", "new orleans grunge", "new wave", "noise rock", "nu disco",
+            "nu metal", "orchestral", "phonk", "piano", "pop punk", "portuguese breakbeat",
+            "post-hardcore", "post-punk", "post-rock", "power metal", "prog avant-garde jazz",
+            "progressive house", "progressive metal", "progressive rock", "psychedelic rock",
+            "punk", "r&b", "raga", "reggae", "reggaeton", "reggaetonwave", "rock and roll",
+            "salsa", "samba", "saxophone afro house", "sertanejo southern rock", "shoegaze",
+            "singer-songwriter", "ska", "smooth jazz", "soul", "soulful bubblegum dance",
+            "soundtrack", "southern hip hop", "space rock", "speed metal", "stoner rock",
+            "surf rock", "swing", "symphonic disco", "symphonic metal", "synth-pop",
+            "synthwave", "techno", "thrash metal", "trap", "trance", "trip hop", "tropical house",
+            "uk garage", "vaporwave", "viking metal", "west coast hip hop", "world music",
+            "yacht rock"
+        ].sort();
+
+        // Modèles de données
+        class AlbumStore {
+            static KEY = 'sunoPromptAlbums';
+            
+            static getAlbums() {
+                const data = localStorage.getItem(this.KEY);
+                return data ? JSON.parse(data) : [];
+            }
+            
+            static saveAlbums(albums) {
+                localStorage.setItem(this.KEY, JSON.stringify(albums));
+            }
+            
+            static addAlbum(album) {
+                const albums = this.getAlbums();
+                albums.push(album);
+                this.saveAlbums(albums);
+            }
+            
+            static updateAlbum(albumId, updates) {
+                const albums = this.getAlbums();
+                const index = albums.findIndex(a => a.id === albumId);
+                if (index !== -1) {
+                    albums[index] = { ...albums[index], ...updates };
+                    this.saveAlbums(albums);
+                }
+            }
+            
+            static deleteAlbum(albumId) {
+                const albums = this.getAlbums();
+                const filtered = albums.filter(a => a.id !== albumId);
+                this.saveAlbums(filtered);
+            }
+            
+            static addTrack(albumId, track) {
+                const albums = this.getAlbums();
+                const album = albums.find(a => a.id === albumId);
+                if (album) {
+                    album.tracks.push(track);
+                    album.updatedAt = new Date().toISOString();
+                    this.saveAlbums(albums);
+                }
+            }
+        }
+
+        // Application State
+        const state = {
+            currentPage: 'styles',
+            selectedStyle: '',
+            filteredStyles: [...MUSIC_STYLES],
+            albums: AlbumStore.getAlbums(),
+            currentPrompt: null,
+            formData: JSON.parse(localStorage.getItem('lastFormData')) || {
+                mood: '',
+                tempo: 'medium',
+                structure: 'intro-verse-chorus-verse-chorus-bridge-chorus-outro',
+                instruments: '',
+                extraTags: ''
+            }
+        };
+
+        // DOM Elements
+        const elements = {
+            // Pages
+            pages: {
+                styles: document.getElementById('page-styles'),
+                albums: document.getElementById('page-albums'),
+                export: document.getElementById('page-export')
+            },
+            
+            // Navigation
+            navBtns: document.querySelectorAll('.nav-btn'),
+            
+            // Styles
+            styleSearch: document.getElementById('style-search'),
+            stylesList: document.getElementById('styles-list'),
+            selectedStyle: document.getElementById('selected-style'),
+            
+            // Formulaire
+            mood: document.getElementById('mood'),
+            tempo: document.getElementById('tempo'),
+            structure: document.getElementById('structure'),
+            instruments: document.getElementById('instruments'),
+            extraTags: document.getElementById('extra-tags'),
+            generateBtn: document.getElementById('generate-btn'),
+            
+            // Prompt
+            promptPreview: document.getElementById('prompt-preview'),
+            promptText: document.getElementById('prompt-text'),
+            copyPrompt: document.getElementById('copy-prompt'),
+            addToAlbum: document.getElementById('add-to-album'),
+            
+            // Albums
+            albumsGrid: document.getElementById('albums-grid'),
+            createAlbumBtn: document.getElementById('create-album-btn'),
+            
+            // Modal
+            albumModal: document.getElementById('album-modal'),
+            albumSelect: document.getElementById('album-select'),
+            newAlbumFields: document.getElementById('new-album-fields'),
+            trackTitle: document.getElementById('track-title'),
+            newAlbumName: document.getElementById('new-album-name'),
+            newAlbumDesc: document.getElementById('new-album-desc'),
+            saveToAlbum: document.getElementById('save-to-album'),
+            cancelModal: document.getElementById('cancel-modal'),
+            
+            // Export
+            exportJson: document.getElementById('export-json'),
+            exportTxt: document.getElementById('export-txt'),
+            shareBtn: document.getElementById('share-btn'),
+            
+            // Toast
+            toast: document.getElementById('toast')
+        };
+
+        // Initialisation
+        function init() {
+            loadStyles();
+            setupEventListeners();
+            restoreState();
+            updateAlbumsDisplay();
+            showToast('🚀 Application prête !', 'success');
+        }
+
+        // Chargement des styles
+        function loadStyles() {
+            elements.stylesList.innerHTML = '';
+            state.filteredStyles.forEach(style => {
+                const div = document.createElement('div');
+                div.className = `style-item ${state.selectedStyle === style ? 'selected' : ''}`;
+                div.textContent = style;
+                div.onclick = () => selectStyle(style);
+                elements.stylesList.appendChild(div);
+            });
+        }
+
+        // Sélection d'un style
+        function selectStyle(style) {
+            state.selectedStyle = style;
+            elements.selectedStyle.value = style;
+            localStorage.setItem('lastSelectedStyle', style);
+            
+            // Update UI
+            document.querySelectorAll('.style-item').forEach(item => {
+                item.classList.toggle('selected', item.textContent === style);
+            });
+        }
+
+        // Navigation
+        function navigateTo(page) {
+            state.currentPage = page;
+            
+            // Update active nav button
+            elements.navBtns.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.page === page);
+            });
+            
+            // Show/hide pages
+            Object.entries(elements.pages).forEach(([key, element]) => {
+                element.style.display = key === page ? 'block' : 'none';
+            });
+            
+            // Animation
+            elements.pages[page].style.opacity = '0';
+            elements.pages[page].style.transform = 'translateY(20px)';
+            setTimeout(() => {
+                elements.pages[page].style.transition = 'all 0.6s ease';
+                elements.pages[page].style.opacity = '1';
+                elements.pages[page].style.transform = 'translateY(0)';
+            }, 10);
+        }
+
+        // Génération du prompt
+        function generatePrompt() {
+            if (!state.selectedStyle) {
+                showToast('🎵 Sélectionnez un style d\'abord !', 'warning');
+                return;
+            }
+
+            const promptParts = [
+                `A track in the style of "${state.selectedStyle}"`
+            ];
+
+            if (elements.mood.value) {
+                promptParts.push(`with a ${elements.mood.value} mood`);
+            }
+
+            if (elements.tempo.value) {
+                promptParts.push(`${elements.tempo.value} tempo`);
+            }
+
+            if (elements.instruments.value) {
+                promptParts.push(`featuring ${elements.instruments.value}`);
+            }
+
+            if (elements.structure.value) {
+                promptParts.push(`structured as ${elements.structure.value}`);
+            }
+
+            if (elements.extraTags.value) {
+                promptParts.push(`with ${elements.extraTags.value}`);
+            }
+
+            const prompt = promptParts.join(', ') + '.';
+            state.currentPrompt = {
+                style: state.selectedStyle,
+                prompt: prompt,
+                formData: {
+                    mood: elements.mood.value,
+                    tempo: elements.tempo.value,
+                    structure: elements.structure.value,
+                    instruments: elements.instruments.value,
+                    extraTags: elements.extraTags.value
+                }
+            };
+
+            // Update UI
+            elements.promptText.textContent = prompt;
+            elements.promptPreview.style.display = 'block';
+            
+            // Save form data
+            localStorage.setItem('lastFormData', JSON.stringify(state.currentPrompt.formData));
+            
+            showToast('✨ Prompt généré avec succès !', 'success');
+        }
+
+        // Copie du prompt
+        function copyPromptToClipboard() {
+            if (!state.currentPrompt) return;
+            
+            navigator.clipboard.writeText(state.currentPrompt.prompt)
+                .then(() => showToast('📋 Prompt copié !', 'success'))
+                .catch(() => showToast('❌ Erreur de copie', 'error'));
+        }
+
+        // Affichage des albums
+        function updateAlbumsDisplay() {
+            elements.albumsGrid.innerHTML = '';
+            
+            if (state.albums.length === 0) {
+                elements.albumsGrid.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 4rem;">
+                        <div style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;">
+                            <i class="fas fa-compact-disc"></i>
+                        </div>
+                        <h3 style="color: var(--text-secondary); margin-bottom: 1rem;">
+                            Aucun album créé
+                        </h3>
+                        <p style="color: var(--text-secondary); margin-bottom: 2rem;">
+                            Commencez par générer des prompts et ajoutez-les à un album
+                        </p>
+                    </div>
+                `;
+                return;
+            }
+
+            state.albums.forEach(album => {
+                const card = document.createElement('div');
+                card.className = 'album-card';
+                card.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                        <h3 style="margin: 0; flex: 1;">${album.name}</h3>
+                        <span style="background: var(--primary-gradient); color: white; padding: 0.25rem 0.5rem; border-radius: 20px; font-size: 0.8rem;">
+                            ${album.tracks.length} piste${album.tracks.length !== 1 ? 's' : ''}
+                        </span>
+                    </div>
+                    ${album.description ? `<p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">${album.description}</p>` : ''}
+                    <div style="display: flex; justify-content: space-between; color: var(--text-secondary); font-size: 0.8rem; margin-bottom: 1rem;">
+                        <span>Créé le ${new Date(album.createdAt).toLocaleDateString()}</span>
+                        <span>Modifié le ${new Date(album.updatedAt).toLocaleDateString()}</span>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button class="btn btn-secondary" style="flex: 1; padding: 0.5rem;" onclick="editAlbum('${album.id}')">
+                            <i class="fas fa-edit"></i> Éditer
+                        </button>
+                        <button class="btn btn-secondary" style="padding: 0.5rem 1rem;" onclick="deleteAlbum('${album.id}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                elements.albumsGrid.appendChild(card);
+            });
+        }
+
+        // Création d'album
+        function createAlbum() {
+            const name = prompt('Nom de l\'album :');
+            if (!name) return;
+            
+            const description = prompt('Description (optionnelle) :');
+            
+            const album = {
+                id: 'album_' + Date.now(),
+                name: name,
+                description: description || '',
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+                tracks: []
+            };
+            
+            state.albums.push(album);
+            AlbumStore.saveAlbums(state.albums);
+            updateAlbumsDisplay();
+            showToast('🎵 Album créé !', 'success');
+        }
+
+        // Édition d'album
+        function editAlbum(albumId) {
+            showToast('✏️ Édition d\'album (à implémenter)', 'info');
+        }
+
+        // Suppression d'album
+        function deleteAlbum(albumId) {
+            if (confirm('Supprimer cet album ?')) {
+                state.albums = state.albums.filter(a => a.id !== albumId);
+                AlbumStore.saveAlbums(state.albums);
+                updateAlbumsDisplay();
+                showToast('🗑️ Album supprimé', 'success');
+            }
+        }
+
+        // Ouverture du modal album
+        function openAlbumModal() {
+            if (!state.currentPrompt) {
+                showToast('🎵 Générez un prompt d\'abord !', 'warning');
+                return;
+            }
+
+            // Populate album select
+            elements.albumSelect.innerHTML = '<option value="">-- Créer un nouvel album --</option>';
+            state.albums.forEach(album => {
+                const option = document.createElement('option');
+                option.value = album.id;
+                option.textContent = `${album.name} (${album.tracks.length} pistes)`;
+                elements.albumSelect.appendChild(option);
+            });
+
+            // Set default track title
+            elements.trackTitle.value = `Track - ${state.currentPrompt.style}`;
+            
+            elements.albumModal.style.display = 'flex';
+        }
+
+        // Sauvegarde dans l'album
+        function saveToAlbum() {
+            const albumId = elements.albumSelect.value;
+            const track = {
+                id: 'track_' + Date.now(),
+                title: elements.trackTitle.value,
+                style: state.currentPrompt.style,
+                prompt: state.currentPrompt.prompt,
+                createdAt: new Date().toISOString()
+            };
+
+            if (!albumId) {
+                // Create new album
+                const album = {
+                    id: 'album_' + Date.now(),
+                    name: elements.newAlbumName.value || 'Nouvel album',
+                    description: elements.newAlbumDesc.value,
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString(),
+                    tracks: [track]
+                };
+                state.albums.push(album);
+            } else {
+                // Add to existing album
+                const album = state.albums.find(a => a.id === albumId);
+                if (album) {
+                    album.tracks.push(track);
+                    album.updatedAt = new Date().toISOString();
+                }
+            }
+
+            AlbumStore.saveAlbums(state.albums);
+            updateAlbumsDisplay();
+            elements.albumModal.style.display = 'none';
+            showToast('✅ Piste ajoutée à l\'album !', 'success');
+        }
+
+        // Export JSON
+        function exportToJson() {
+            const data = {
+                albums: state.albums,
+                exportedAt: new Date().toISOString()
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `suno-prompts-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showToast('📦 Export JSON terminé !', 'success');
+        }
+
+        // Export TXT
+        function exportToTxt() {
+            let text = '=== SUNO PROMPT ALBUM EXPORT ===\n\n';
+            
+            state.albums.forEach((album, index) => {
+                text += `ALBUM ${index + 1}: ${album.name}\n`;
+                if (album.description) {
+                    text += `Description: ${album.description}\n`;
+                }
+                text += `\n`;
+                
+                album.tracks.forEach((track, trackIndex) => {
+                    text += `TRACK ${(trackIndex + 1).toString().padStart(2, '0')}: ${track.title}\n`;
+                    text += `Style: ${track.style}\n`;
+                    text += `Prompt: ${track.prompt}\n`;
+                    text += `\n`;
+                });
+                
+                text += '─'.repeat(50) + '\n\n';
+            });
+            
+            const blob = new Blob([text], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `suno-prompts-${new Date().toISOString().split('T')[0]}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showToast('📄 Export TXT terminé !', 'success');
+        }
+
+        // Partage
+        function shareData() {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Mes prompts Suno',
+                    text: 'Découvrez mes prompts musicaux générés pour Suno AI',
+                    url: window.location.href
+                }).then(() => showToast('📤 Partage réussi !', 'success'))
+                  .catch(() => showToast('❌ Partage annulé', 'error'));
+            } else {
+                showToast('📤 Copiez le lien pour partager', 'info');
+            }
+        }
+
+        // Toast notifications
+        function showToast(message, type = 'info') {
+            const colors = {
+                success: '#48bb78',
+                error: '#f56565',
+                warning: '#ed8936',
+                info: '#4299e1'
+            };
+            
+            elements.toast.textContent = message;
+            elements.toast.style.borderLeftColor = colors[type] || colors.info;
+            elements.toast.classList.add('show');
+            
+            setTimeout(() => {
+                elements.toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Restauration de l'état
+        function restoreState() {
+            // Restore last selected style
+            const lastStyle = localStorage.getItem('lastSelectedStyle');
+            if (lastStyle && MUSIC_STYLES.includes(lastStyle)) {
+                selectStyle(lastStyle);
+            }
+
+            // Restore form data
+            if (state.formData) {
+                elements.mood.value = state.formData.mood || '';
+                elements.tempo.value = state.formData.tempo || 'medium';
+                elements.structure.value = state.formData.structure || 'intro-verse-chorus-verse-chorus-bridge-chorus-outro';
+                elements.instruments.value = state.formData.instruments || '';
+                elements.extraTags.value = state.formData.extraTags || '';
+            }
+        }
+
+        // Configuration des event listeners
+        function setupEventListeners() {
+            // Navigation
+            elements.navBtns.forEach(btn => {
+                btn.addEventListener('click', () => navigateTo(btn.dataset.page));
+            });
+
+            // Search
+            elements.styleSearch.addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase();
+                state.filteredStyles = MUSIC_STYLES.filter(style => 
+                    style.toLowerCase().includes(query)
+                );
+                loadStyles();
+            });
+
+            // Form
+            elements.generateBtn.addEventListener('click', generatePrompt);
+            
+            // Prompt actions
+            elements.copyPrompt.addEventListener('click', copyPromptToClipboard);
+            elements.addToAlbum.addEventListener('click', openAlbumModal);
+            
+            // Album modal
+            elements.albumSelect.addEventListener('change', (e) => {
+                elements.newAlbumFields.style.display = e.target.value ? 'none' : 'block';
+            });
+            
+            elements.saveToAlbum.addEventListener('click', saveToAlbum);
+            elements.cancelModal.addEventListener('click', () => {
+                elements.albumModal.style.display = 'none';
+            });
+            
+            // Albums
+            elements.createAlbumBtn.addEventListener('click', createAlbum);
+            
+            // Export
+            elements.exportJson.addEventListener('click', exportToJson);
+            elements.exportTxt.addEventListener('click', exportToTxt);
+            elements.shareBtn.addEventListener('click', shareData);
+            
+            // Close modal on overlay click
+            elements.albumModal.addEventListener('click', (e) => {
+                if (e.target === elements.albumModal) {
+                    elements.albumModal.style.display = 'none';
+                }
+            });
+            
+            // Keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                // Ctrl/Cmd + Enter to generate prompt
+                if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                    e.preventDefault();
+                    generatePrompt();
+                }
+                
+                // Escape to close modal
+                if (e.key === 'Escape') {
+                    elements.albumModal.style.display = 'none';
+                }
+                
+                // Ctrl/Cmd + K to focus search
+                if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                    e.preventDefault();
+                    elements.styleSearch.focus();
+                }
+            });
+        }
+
+        // Initialisation au chargement
+        window.addEventListener('DOMContentLoaded', init);
+
+        // Exposer les fonctions globales
+        window.editAlbum = editAlbum;
+        window.deleteAlbum = deleteAlbum;
+    </script> 
     
 </body>
 </html>
