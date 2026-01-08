@@ -109,6 +109,41 @@
         .c.nav-btn:hover::before {
             left: 100%;
         }
+/* Boutons avec effets spéciaux */
+        .c.btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            letter-spacing: 0.5px;
+        }
+
+        .c.btn-primary {
+            background: var(--primary-gradient);
+            color: white;
+            box-shadow: var(--accent-glow);
+        }
+
+        .c.btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .c.btn-secondary {
+            background: var(--glass-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--glass-border);
+        }
+
+        .c.btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
 /* Effets de fond */
         .bg-effects {
             position: fixed;
