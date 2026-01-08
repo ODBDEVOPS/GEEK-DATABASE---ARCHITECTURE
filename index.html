@@ -1110,6 +1110,6 @@ Contraintes:
             });
         }
     </script>
-    <script> class MyHeader extends HTMLElement { connectedCallback() { fetch("header.html") .then(r => r.text()) .then(html => this.innerHTML = html); } } customElements.define("my-header", MyHeader); </script>
+    <script> class MyHeader extends HTMLElement { connectedCallback() { fetch("_includes/header.html") .then(r => r.text()) .then(html => this.innerHTML = html); } } customElements.define("my-header", MyHeader); </script>
 </body>
 </html>
