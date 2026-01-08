@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CinéGrok - Music Video Prompt Generator</title>
+    <style>
+        :root {
+            --bg-dark: #0f1115;
+            --panel-bg: #161b22;
+            --accent: #00ff9d;
+            --accent-dim: rgba(0, 255, 157, 0.1);
+            --text-main: #e6edf3;
+            --text-dim: #8b949e;
+            --border: #30363d;
+            --danger: #ff5555;
+            --font-mono: 'SF Mono', 'Segoe UI Mono', 'Courier New', monospace;
+            --font-ui: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        * { box-sizing: border-box; outline: none; }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: var(--font-ui);
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden; /* Constraint Respectée */
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* HEADER */
+        header {
+            height: 60px;
+            background: var(--panel-bg);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            justify-content: space-between;
+        }
+
+        .brand {
+            font-weight: 800;
+            font-size: 1.2rem;
+            letter-spacing: 1px;
+            color: var(--accent);
+            text-transform: uppercase;
+        }
+
+        .actions button {
+            background: var(--accent);
+            color: var(--bg-dark);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .actions button:hover { transform: scale(1.05); }
+
+        /* MAIN LAYOUT */
+        .workspace {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* SIDEBAR - CONFIGURATION */
+        .sidebar {
+            width: 350px;
+            background: var(--panel-bg);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            overflow-y: auto;
+            z-index: 10;
+        }
+
+        h2 { font-size: 0.9rem; color: var(--text-dim); text-transform: uppercase; margin-top: 20px; margin-bottom: 10px; }
+        h2:first-child { margin-top: 0; }
+
+        label { display: block; font-size: 0.8rem; margin-bottom: 5px; color: var(--accent); }
+        
+        textarea, input, select {
+            width: 100%;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            border-radius: 6px;
+            padding: 10px;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus, input:focus { border-color: var(--accent); }
+
+        .param-group { margin-bottom: 15px; }
+
+        /* TIMELINE AREA */
+        .timeline-container {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            background-image: radial-gradient(#30363d 1px, transparent 1px);
+            background-size: 20px 20px;
+            position: relative;
+        }
+
+        .scene-list {
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding-bottom: 100px;
+        }
+
+        /* SCENE CARD */
+        .scene-card {
+            background: rgba(22, 27, 34, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            transform-origin: center;
+        }
+
+        .scene-card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 0 20px rgba(0, 255, 157, 0.1);
+            transform: scale(1.01); /* Zoom effect requested */
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+
+        .scene-number {
+            font-family: var(--font-mono);
+            color: var(--accent);
+            font-weight: bold;
+            background: var(--accent-dim);
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .scene-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-icon {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+        
+        .btn-icon:hover { color: var(--text-main); border-color: var(--text-main); }
+        .btn-delete:hover { color: var(--danger); border-color: var(--danger); }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .final-prompt-preview {
+            background: #0d1117;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 3px solid var(--accent);
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            white-space: pre-wrap;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .final-prompt-preview:hover {
+            color: var(--text-main);
+        }
+
+        .copy-hint {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            opacity: 0.5;
+        }
+
+        /* FAB (Floating Action Button) */
+        .fab-add {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--accent);
+            border: none;
+            color: var(--bg-dark);
+            font-size: 30px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 255, 157, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .fab-add:hover {
+            transform: scale(1.1) rotate(90deg);
+            box-shadow: 0 6px 20px rgba(0, 255, 157, 0.6);
+        }
+
+        /* Notification Toast */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--accent);
+            color: var(--bg-dark);
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-weight: bold;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="brand">CinéGrok <span style="font-size:0.5em; opacity:0.7">Video Clip Builder</span></div>
+        <div class="actions">
+            <button onclick="app.exportAll()">JSON Export</button>
+        </div>
+    </header>
+
+    <div class="workspace">
+        <div class="sidebar">
+            <h2>Character / Master</h2>
+            <div class="param-group">
+                <label>Physique du Chanteur (Master Prompt)</label>
+                <textarea id="masterPrompt" rows="6" placeholder="Ex: Cyberpunk male singer, neon dreadlocks, chrome robotic arm, wearing leather jacket...">Young rebellious rockstar with messy black hair, piercing blue eyes, wearing a vintage leather jacket and silver rings.</textarea>
+            </div>
+
+            <h2>Paramètres Techniques</h2>
+            <div class="param-group">
+                <label>Style Visuel</label>
+                <textarea id="techStyle" rows="5">Cinematic music video, 8k resolution, photorealistic, dramatic lighting, slow motion, high contrast, Arri Alexa footage.</textarea>
+            </div>
+            
+            <div class="param-group">
+                <label>Mots-clés de Cohérence</label>
+                <input type="text" id="consistencyTags" value="consistent face, identical character">
+            </div>
+
+            <div style="margin-top:auto; font-size:0.7rem; color:var(--text-dim); text-align:center;">
+                Développé pour GitHub<br>HTML5/JS Natif
+            </div>
+        </div>
+
+        <div class="timeline-container" id="timelineScroll">
+            <div id="sceneList" class="scene-list">
+                </div>
+        </div>
+    </div>
+
+    <button class="fab-add" onclick="app.addScene()">+</button>
+    
+    <div id="toast" class="toast">Prompt Copié !</div>
+
+    <script>
+        /**
+         * Application Logic
+         * Gère l'état, le rendu et la génération de prompts
+         */
+        class ClipBuilder {
+            constructor() {
+                this.scenes = [];
+                // Initial Data
+                this.masterPromptInput = document.getElementById('masterPrompt');
+                this.techStyleInput = document.getElementById('techStyle');
+                this.consistencyInput = document.getElementById('consistencyTags');
+                this.sceneListContainer = document.getElementById('sceneList');
+
+                this.initListeners();
+                // Add first default scene
+                this.addScene("Close up on singer's face, singing emotionally in the rain", "Slow zoom in");
+            }
+
+            initListeners() {
+                // Update all previews when global settings change
+                const inputs = [this.masterPromptInput, this.techStyleInput, this.consistencyInput];
+                inputs.forEach(input => {
+                    input.addEventListener('input', () => this.renderPreviews());
+                });
+            }
+
+            addScene(action = "", camera = "") {
+                const id = Date.now();
+                const scene = {
+                    id: id,
+                    action: action,
+                    camera: camera
+                };
+                this.scenes.push(scene);
+                this.renderSceneElement(scene, this.scenes.length);
+            }
+
+            deleteScene(id) {
+                this.scenes = this.scenes.filter(s => s.id !== id);
+                this.refreshUI();
+            }
+
+            // Generate the full string for a specific scene
+            generateFullPrompt(sceneObj) {
+                const master = this.masterPromptInput.value.trim();
+                const style = this.techStyleInput.value.trim();
+                const consistency = this.consistencyInput.value.trim();
+                
+                // Logic: [Master] + [Action] + [Camera] + [Consistency] + [Style]
+                let parts = [
+                    master,
+                    `Action: ${sceneObj.action}`,
+                    `Camera: ${sceneObj.camera}`,
+                    consistency,
+                    style
+                ];
+
+                return parts.filter(p => p.length > 0).join(", ");
+            }
+
+            // Create DOM elements for a scene
+            renderSceneElement(scene, index) {
+                const div = document.createElement('div');
+                div.className = 'scene-card';
+                div.id = `card-${scene.id}`;
+                
+                div.innerHTML = `
+                    <div class="card-header">
+                        <span class="scene-number">SCÈNE 0${index}</span>
+                        <div class="scene-controls">
+                            <button class="btn-icon" onclick="app.copyPrompt(${scene.id})">📋 Copier Prompt</button>
+                            <button class="btn-icon btn-delete" onclick="app.deleteScene(${scene.id})">🗑️</button>
+                        </div>
+                    </div>
+                    <div class="input-row">
+                        <div>
+                            <label>Action / Scénario</label>
+                            <input type="text" value="${scene.action}" 
+                                oninput="app.updateScene(${scene.id}, 'action', this.value)" 
+                                placeholder="Décrire l'action...">
+                        </div>
+                        <div>
+                            <label>Mouvement Caméra</label>
+                            <select onchange="app.updateScene(${scene.id}, 'camera', this.value)">
+                                <option value="" ${scene.camera === '' ? 'selected' : ''}>Statique</option>
+                                <option value="Slow zoom in" ${scene.camera === 'Slow zoom in' ? 'selected' : ''}>Zoom In</option>
+                                <option value="Zoom out" ${scene.camera === 'Zoom out' ? 'selected' : ''}>Zoom Out</option>
+                                <option value="Pan right" ${scene.camera === 'Pan right' ? 'selected' : ''}>Pan Right</option>
+                                <option value="Tracking shot" ${scene.camera === 'Tracking shot' ? 'selected' : ''}>Tracking Shot</option>
+                                <option value="Handheld shake" ${scene.camera === 'Handheld shake' ? 'selected' : ''}>Handheld</option>
+                                <option value="Low angle" ${scene.camera === 'Low angle' ? 'selected' : ''}>Low Angle</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="final-prompt-preview" id="preview-${scene.id}" onclick="app.copyPrompt(${scene.id})">
+                        <span class="copy-hint">Click to Copy</span>
+                        ${this.generateFullPrompt(scene)}
+                    </div>
+                `;
+                
+                this.sceneListContainer.appendChild(div);
+                
+                // Auto scroll to bottom
+                div.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+
+            updateScene(id, field, value) {
+                const scene = this.scenes.find(s => s.id === id);
+                if (scene) {
+                    scene[field] = value;
+                    // Update the specific preview text
+                    const previewEl = document.getElementById(`preview-${id}`);
+                    if (previewEl) {
+                        previewEl.innerText = this.generateFullPrompt(scene);
+                        previewEl.innerHTML += `<span class="copy-hint">Click to Copy</span>`;
+                    }
+                }
+            }
+
+            renderPreviews() {
+                this.scenes.forEach(scene => {
+                    const previewEl = document.getElementById(`preview-${scene.id}`);
+                    if (previewEl) {
+                        previewEl.innerText = this.generateFullPrompt(scene);
+                        previewEl.innerHTML += `<span class="copy-hint">Click to Copy</span>`;
+                    }
+                });
+            }
+
+            refreshUI() {
+                this.sceneListContainer.innerHTML = '';
+                this.scenes.forEach((scene, idx) => {
+                    this.renderSceneElement(scene, idx + 1);
+                });
+            }
+
+            copyPrompt(id) {
+                const scene = this.scenes.find(s => s.id === id);
+                if (scene) {
+                    const text = this.generateFullPrompt(scene);
+                    navigator.clipboard.writeText(text).then(() => {
+                        this.showToast();
+                        // Visual feedback on card
+                        const card = document.getElementById(`card-${id}`);
+                        card.style.borderColor = "#fff";
+                        setTimeout(() => card.style.borderColor = "", 200);
+                    });
+                }
+            }
+
+            showToast() {
+                const toast = document.getElementById('toast');
+                toast.classList.add('show');
+                setTimeout(() => toast.classList.remove('show'), 2000);
+            }
+
+            exportAll() {
+                const data = JSON.stringify(this.scenes, null, 2);
+                const blob = new Blob([data], {type: 'application/json'});
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'grok_clip_project.json';
+                a.click();
+            }
+        }
+
+        // Initialize App
+        const app = new ClipBuilder();
+
+    </script>
+</body>
+</html>
