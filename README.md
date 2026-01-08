@@ -188,3 +188,46 @@ GeekDatabase/
 ├── netlify.toml
 └── vercel.json
 ```
+# 🎮 Geek Database
+
+![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Deployed-brightgreen)
+![GitHub Actions](https://img.shields.io/github/actions/workflow/status/votrenom/geek-database/deploy.yml)
+![Website](https://img.shields.io/website?url=https%3A%2F%2Fvotrenom.github.io%2Fgeek-database)
+![License](https://img.shields.io/badge/License-MIT-blue)
+![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-brightgreen)
+
+> Base de données collaborative pour collectionneurs geeks - Films, Séries, Jeux, Livres, Mangas
+
+🌐 **Live Demo :** [https://votrenom.github.io/geek-database](https://votrenom.github.io/geek-database)
+
+## ✨ Fonctionnalités
+
+- 📚 **Catalogue complet** : Films, séries, jeux vidéo, livres, mangas
+- 🏷️ **Système de tags** : Catégorisation avancée par genre, plateforme, etc.
+- 🔍 **Recherche avancée** : Filtres multiples et recherche en temps réel
+- 📊 **Statistiques** : Visualisations de vos collections
+- 👥 **Communauté** : Partage et découverte des collections des autres
+- 📱 **Responsive** : Design adapté mobile, tablette et desktop
+- 🔄 **Offline-first** : Fonctionne hors connexion (PWA)
+- 🎨 **Multi-themes** : Light, Dark, Cyberpunk
+
+## 🚀 Démarrage Rapide
+
+### Prérequis
+- Node.js 18+
+- npm 9+
+
+### Installation
+```bash
+# 1. Cloner le projet
+git clone https://github.com/votrenom/geek-database.git
+cd geek-database
+
+# 2. Installer les dépendances
+npm install
+
+# 3. Démarrer le serveur de développement
+npm run dev
+
+# 4. (Optionnel) Démarrer le mock API
+npm run dev:data
