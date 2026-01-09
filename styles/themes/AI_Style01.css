@@ -1,18 +1,4 @@
-:root {
-            --primary: #7c3aed;
-            --primary-dark: #5b21b6;
-            --secondary: #10b981;
-            --dark: #1f2937;
-            --light: #f9fafb;
-            --gray: #9ca3af;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --card-bg: #ffffff;
-            --sidebar-bg: #1e1b4b;
-            --border: #e5e7eb;
-        }
-
-        * {
+* {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
