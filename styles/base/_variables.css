@@ -1,6 +1,6 @@
 :root {
 /* Couleurs principales */
-    --primary-color: #2563eb;
+    --primary-color: #6366f1;
     --secondary-color: #7c3aed;
 /* Variables de thème dynamique */
     --primary-gradient: linear-gradient(135deg, #2563eb 0%, #764ba2 100%);
