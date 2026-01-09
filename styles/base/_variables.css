@@ -2,6 +2,18 @@
 /* Couleurs principales */
     --primary-color: #6366f1;
     --secondary-color: #7c3aed;
+
+     --primary: #7c3aed;
+            --primary-dark: #5b21b6;
+            --secondary: #10b981;
+            --dark: #1f2937;
+            --light: #f9fafb;
+            --gray: #9ca3af;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --card-bg: #ffffff;
+            --sidebar-bg: #1e1b4b;
+            --border: #e5e7eb;
 /* Variables de thème dynamique */
     --primary-gradient: linear-gradient(135deg, #2563eb 0%, #764ba2 100%);
     --secondary-gradient: linear-gradient(135deg, #7c3aed 0%, #f5576c 100%);
